@@ -1,0 +1,18 @@
+{
+  "name": "Nova Saúde 90 — Meu Plano de Hábitos",
+  "short_name": "Nova Saúde 90",
+  "description": "Planejador de refeições, hábitos, diário e acompanhamento ao longo de 90 dias.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "lang": "pt-BR",
+  "background_color": "#f6f0e4",
+  "theme_color": "#2f8f6b",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"},
+    {"src": "icone-nova-saude-90.svg", "sizes": "any", "type": "image/svg+xml"}
+  ]
+}

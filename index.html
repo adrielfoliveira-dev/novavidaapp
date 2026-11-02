@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="icone-nova-saude-90.svg"><link rel="manifest" href="manifest.json"><meta name="theme-color" content="#2f8f6b"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Nova Saúde 90"><title>Nova Saúde 90 — Meu Plano de Hábitos</title>
+<style>
+:root{--g:#2f8f6b;--gd:#1d5f47;--m:#d9f3e7;--b:#f6f0e4;--w:#fff;--c:#ff8a73;--y:#ffe7a1;--bl:#d6ebf8;--l:#e7ddf8;--t:#22352d;--s:#66786f;--r:20px}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;background:var(--b);color:var(--t);line-height:1.5}
+h1,h2,h3{font-family:Georgia,"Palatino Linotype",serif;margin:.2em 0 .5em;color:var(--gd);line-height:1.2}
+#app{display:grid;grid-template-columns:210px 1fr;min-height:100vh}
+nav{background:var(--gd);padding:18px 12px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:4px}
+nav b{color:#fff;font:700 18px Georgia,serif;padding:6px 10px 14px}
+nav button{background:none;border:0;color:#cfeadd;text-align:left;padding:10px 12px;border-radius:14px;font:inherit;cursor:pointer;display:flex;gap:10px;align-items:center}
+nav button.on,nav button:hover{background:var(--m);color:var(--gd)}
+main{padding:24px;max-width:1000px;width:100%}
+.card{background:var(--w);border-radius:var(--r);padding:20px;margin-bottom:16px;box-shadow:0 6px 18px rgba(34,53,45,.08)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.hero{background:linear-gradient(135deg,var(--m),var(--bl));border-radius:28px;padding:26px;margin-bottom:16px}
+.quote{background:var(--y);border-radius:var(--r);padding:18px;font:italic 17px Georgia,serif;margin-bottom:16px}
+.bar{height:16px;background:var(--m);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--g),#7fd1a8);transition:width .6s}
+button.p,button.s,button.d{border:0;border-radius:99px;padding:10px 18px;font:inherit;font-weight:700;cursor:pointer;transition:transform .15s}
+button.p{background:var(--g);color:#fff}button.s{background:var(--l);color:var(--gd)}button.d{background:#ffe0da;color:#a33}
+button:active{transform:scale(.95)}
+button.mini{border:0;background:var(--b);border-radius:10px;padding:3px 8px;cursor:pointer}
+input,select,textarea{width:100%;padding:10px 12px;border:2px solid var(--m);border-radius:14px;font:inherit;background:#fff;color:var(--t)}
+textarea{min-height:70px;resize:vertical}
+label{display:block;font-weight:700;font-size:14px;margin:10px 0 4px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.row>*{flex:1;min-width:120px}
+.note{background:var(--bl);border-radius:14px;padding:12px 14px;font-size:14px;margin:10px 0}
+.warn{background:#fff3d6}
+.sm{color:var(--s);font-size:13px}
+table{border-collapse:collapse;width:100%;font-size:14px}th,td{padding:8px;border-bottom:1px solid var(--m);text-align:left}
+.wk{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+.dy{background:var(--b);border-radius:14px;padding:8px;min-height:90px;font-size:13px}
+.ml{background:#fff;border-left:4px solid var(--g);border-radius:8px;padding:5px 7px;margin:5px 0}.ml.dn{border-color:var(--c);opacity:.75}
+.hc{width:36px;height:36px;border-radius:12px;border:2px solid var(--m);background:#fff;cursor:pointer;font-size:16px}.hc.on{background:var(--g);color:#fff;border-color:var(--g)}
+.moods button{font-size:30px;background:var(--b);border:3px solid transparent;border-radius:16px;cursor:pointer;padding:4px 8px}.moods .on{border-color:var(--g);background:var(--m)}
+.tabs{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}.tabs button{flex:1}
+.ch{width:100%;max-width:420px;height:auto}
+#toast{position:fixed;left:50%;top:16px;transform:translateX(-50%);background:var(--gd);color:#fff;padding:10px 20px;border-radius:99px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:9}
+#toast.on{opacity:1}
+@media(max-width:760px){
+#app{display:block}main{padding:14px 12px 90px}
+nav{position:fixed;bottom:0;left:0;right:0;top:auto;height:auto;flex-direction:row;overflow-x:auto;padding:6px;z-index:5}
+nav b{display:none}nav button{flex-direction:column;gap:0;font-size:11px;padding:6px 10px;text-align:center}
+.wk{grid-template-columns:1fr}}
+@media print{nav,.np,button{display:none!important}#app{display:block}body{background:#fff}.card{box-shadow:none;border:1px solid #ccc}}
+</style></head><body>
+<div id="toast"></div>
+<div id="app"><nav id="nav"></nav><main id="main"></main></div>
+<script>
+const K='ns90',p2=n=>String(n).padStart(2,'0');
+const iso=d=>d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());
+const parse=s=>new Date(s+'T00:00:00'),addD=(s,n)=>{const d=parse(s);d.setDate(d.getDate()+n);return iso(d)};
+const today=()=>iso(new Date()),monday=s=>{const d=parse(s),w=(d.getDay()+6)%7;return addD(s,-w)};
+const fmt=s=>s?parse(s).toLocaleDateString('pt-BR'):'';
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const MT=['Café da manhã','Almoço','Lanche','Jantar'];
+const CATS=['Frutas','Verduras e legumes','Carnes e proteínas','Ovos e laticínios','Grãos, cereais e massas','Feijão e outras leguminosas','Alimentos práticos','Outros alimentos'];
+const EXN=['Glicose','Triglicerídeos','Colesterol total','HDL','LDL','Avaliação de gordura no fígado'];
+const MOODS=[['😊','Muito bem'],['🙂','Bem'],['😐','Neutro'],['😕','Difícil'],['😔','Muito difícil']];
+const QUOTES=['Você não precisa fazer tudo perfeitamente. Precisa encontrar um jeito sustentável de continuar.','Pequenos passos também contam.','Cada registro ajuda você a entender sua rotina.','Adapte o plano à sua vida real.'];
+const RQ={30:['O que consegui colocar em prática?','Quais hábitos foram mais fáceis?','Quais foram mais difíceis?','O que aprendi sobre minha rotina?','O que quero ajustar no próximo mês?','Qual conquista merece ser comemorada?'],
+60:['O que mudou desde a primeira revisão?','Quais hábitos estão mais naturais?','O que ainda exige esforço?','Como estou lidando com imprevistos?','O que aprendi sobre minhas escolhas?','Qual será meu próximo objetivo realista?'],
+90:['Principais conquistas','Aprendizados','Dificuldades superadas','O que desejo continuar fazendo']};
+const def=()=>({name:'',start:today(),quote:0,goals:[],times:{'Café da manhã':'07:30','Almoço':'12:30','Lanche':'16:00','Jantar':'19:30'},
+habits:['Bebi água ao longo do dia','Organizei minhas refeições','Incluí alimentos variados','Fiz algum movimento corporal','Respeitei meus momentos de descanso','Reservei um momento para cuidar de mim','Evitei me cobrar perfeição'].map(t=>({id:uid(),t})),
+log:{},meals:[],shop:[],exams:[],rev:{30:{},60:{},90:{}},cycles:[]});
+let S;try{S=Object.assign(def(),JSON.parse(localStorage.getItem(K)||'{}'))}catch(e){S=def()}
+const save=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){toast('Não foi possível salvar neste navegador.')}};
+let cur='home',ws=monday(today()),hd=today(),dd=today(),rv=30,ed={},exSel='Glicose';
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('on'),2200)}
+const dayN=()=>Math.floor((parse(today())-parse(S.start))/864e5)+1;
+const L=d=>S.log[d]||(S.log[d]={h:[],mood:null,d:{}});
+const pct=d=>{const l=S.log[d];return l&&S.habits.length?S.habits.filter(h=>(l.h||[]).includes(h.id)).length/S.habits.length*100:0};
+const isReg=d=>{const l=S.log[d];return !!l&&((l.h||[]).length>0||l.mood!=null||Object.values(l.d||{}).some(x=>x))};
+const range=(a,b)=>{const r=[];for(let i=a;i<=b;i++)r.push(addD(S.start,i-1));return r};
+const stat=(a,b)=>{const r=range(a,b);return{reg:r.filter(isReg).length,avg:Math.round(r.reduce((s,d)=>s+pct(d),0)/r.length),n:r.length}};
+function bars(a,max){const w=320,h=110,n=a.length,bw=w/n;return `<svg class="ch" viewBox="0 0 ${w} ${h+20}">`+a.map((x,i)=>{const bh=max?Math.min(x.v/max,1)*h:0;return `<rect x="${i*bw+4}" y="${h-bh}" width="${bw-8}" height="${Math.max(bh,1.5)}" rx="5" fill="${x.c||'#2f8f6b'}"/><text x="${i*bw+bw/2}" y="${h+14}" font-size="10" text-anchor="middle" fill="#66786f">${esc(x.l)}</text>`}).join('')+'</svg>'}
+function line(pts){if(pts.length<1)return '<p class="sm">Registre ao menos um resultado numérico para ver o gráfico.</p>';const w=320,h=120,v=pts.map(x=>x.y),mn=Math.min(...v),mx=Math.max(...v),sp=mx-mn||1;
+const P=pts.map((x,i)=>[20+(pts.length>1?i*(w-40)/(pts.length-1):(w-40)/2),h-10-((x.y-mn)/sp)*(h-30)]);
+return `<svg class="ch" viewBox="0 0 ${w} ${h+22}"><polyline fill="none" stroke="#2f8f6b" stroke-width="3" points="${P.map(q=>q.join(',')).join(' ')}"/>`+P.map((q,i)=>`<circle cx="${q[0]}" cy="${q[1]}" r="5" fill="#ff8a73"/><text x="${q[0]}" y="${q[1]-9}" font-size="10" text-anchor="middle" fill="#22352d">${pts[i].y}</text><text x="${q[0]}" y="${h+16}" font-size="9" text-anchor="middle" fill="#66786f">${esc(pts[i].l)}</text>`).join('')+'</svg>'}
+const prog=p=>`<div class="bar"><i style="width:${p}%"></i></div>`;
+const opt=(a,sel)=>a.map(x=>`<option ${x==sel?'selected':''}>${esc(x)}</option>`).join('');
+const NAV=[['home','Início','🏠'],['meals','Refeições','🍽️'],['shop','Compras','🛒'],['habits','Hábitos','✅'],['diary','Diário','📓'],['rev','Revisões','🌱'],['ex','Exames','🧪'],['rep','Relatórios','📊'],['set','Ajustes','⚙️']];
+const V={};
+V.home=()=>{const n=dayN(),c=Math.max(0,Math.min(n,90)),pc=Math.round(c/90*100),nr=n<=30?30:n<=60?60:90,
+last=[...Array(7)].map((_,i)=>{const d=addD(today(),i-6);return{l:parse(d).toLocaleDateString('pt-BR',{weekday:'short'}).slice(0,3),v:pct(d)}});
+return `<div class="hero"><h1>Olá${S.name?', '+esc(S.name):''}! Vamos cuidar de você hoje?</h1>
+<div class="row"><div><label>Seu nome</label><input data-s="name" value="${esc(S.name)}" placeholder="Como quer ser chamada(o)?"></div><div><label>Início do protocolo</label><input type="date" data-s="start" value="${S.start}"></div></div>
+<h2 style="margin-top:18px">${n<1?'Seu protocolo começa em '+fmt(S.start):n>90?'Ciclo concluído 🎉':'Dia '+n+' de 90'}</h2>${prog(pc)}
+<p class="sm">${c} dias concluídos · ${90-c} restantes · ${pc}%</p>
+<div class="row np"><button class="p" data-a="go" data-v="diary">Registrar meu dia</button><button class="s" data-a="go" data-v="meals">Planejar minha semana</button></div></div>
+<div class="quote">“${esc(QUOTES[S.quote]||QUOTES[0])}”</div>
+<div class="grid"><div class="card"><h3>Hábitos dos últimos 7 dias</h3>${bars(last,100)}<p class="sm">Cada barra é o percentual de hábitos que você registrou no dia. Hoje foi diferente? Amanhã você pode recomeçar.</p></div>
+<div class="card"><h3>Próxima revisão</h3><p style="font-size:22px;margin:4px 0">Dia ${nr}</p><p class="sm">${n>nr?'Já disponível — você pode fazê-la quando quiser.':'Faltam '+Math.max(nr-n,0)+' dias.'}</p><button class="s np" data-a="rvgo" data-n="${nr}">Abrir revisão</button>
+<div class="note">Seus dados ficam apenas neste navegador. Limpar os dados do navegador pode apagá-los: exporte um backup em Ajustes.</div></div></div>`};
+V.meals=()=>{const m=ed.meal||{},days=[...Array(7)].map((_,i)=>addD(ws,i));
+return `<h1>Planejador semanal</h1><div class="note">Planejar não significa seguir tudo rigidamente. Use este espaço para facilitar suas escolhas e adaptar sua rotina.</div>
+<div class="card"><form data-f="meal"><div class="row"><div><label>Data</label><input type="date" name="date" required value="${m.date||hd}"></div><div><label>Refeição</label><select name="type" data-a2="mt">${opt(MT,m.type)}</select></div><div><label>Horário</label><input type="time" name="time" value="${m.time||S.times[m.type||MT[0]]}"></div></div>
+<label>O que pretendo comer</label><input name="text" required value="${esc(m.text)}"><label>Alternativa prática para dias corridos</label><input name="alt" value="${esc(m.alt)}">
+<div class="row" style="margin-top:12px"><button class="p">${m.id?'Salvar alteração':'Adicionar refeição'}</button>${m.id?'<button type="button" class="s" data-a="cancel">Cancelar</button>':''}</div></form></div>
+<div class="row np"><button class="s" data-a="wk" data-n="-7">◀ Semana anterior</button><b>${fmt(days[0])} a ${fmt(days[6])}</b><button class="s" data-a="wk" data-n="7">Próxima ▶</button></div><br>
+<div class="wk">${days.map(d=>`<div class="dy"><b>${parse(d).toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit'})}</b>${S.meals.filter(x=>x.date==d).sort((a,b)=>(a.time||'').localeCompare(b.time||'')).map(x=>`<div class="ml ${x.done?'dn':''}"><b>${esc(x.type)}</b> ${esc(x.time)}<br>${esc(x.text)}${x.alt?'<br><span class="sm">Plano B: '+esc(x.alt)+'</span>':''}<br><button class="mini" data-a="mdone" data-id="${x.id}">${x.done?'✔ Realizada':'☐ Planejada'}</button><button class="mini" data-a="medit" data-id="${x.id}">✏️</button><button class="mini" data-a="mdel" data-id="${x.id}">🗑️</button></div>`).join('')}</div>`).join('')}</div>`};
+V.shop=()=>{const s=ed.shop||{},ST={need:'Preciso comprar',have:'Já tenho',bought:'Comprado'},home=S.shop.filter(x=>x.st=='have');
+return `<h1>Compras e despensa</h1><div class="card np"><form data-f="shop"><div class="row"><div><label>Alimento</label><input name="name" required value="${esc(s.name)}"></div><div><label>Categoria</label><select name="cat">${opt(CATS,s.cat)}</select></div></div>
+<div class="row"><div><label>Quantidade</label><input name="qty" value="${esc(s.qty)}"></div><div><label>Unidade</label><input name="unit" placeholder="kg, un, pacote" value="${esc(s.unit)}"></div><div><label>Situação</label><select name="st">${Object.entries(ST).map(([k,v])=>`<option value="${k}" ${k==(s.st||'need')?'selected':''}>${v}</option>`).join('')}</select></div></div>
+<label>Observações</label><input name="obs" value="${esc(s.obs)}"><div class="row" style="margin-top:12px"><button class="p">${s.id?'Salvar alteração':'Adicionar item'}</button><button type="button" class="s" data-a="print">🖨️ Imprimir lista</button></div></form></div>
+<div class="card"><h2>Lista por categoria</h2>${CATS.map(c=>{const it=S.shop.filter(x=>x.cat==c&&x.st!='have');return it.length?`<h3>${c}</h3>`+it.map(x=>`<div class="row" style="border-bottom:1px solid var(--m);padding:4px 0"><span style="${x.st=='bought'?'text-decoration:line-through;opacity:.6':''}">${esc(x.name)} <span class="sm">${esc(x.qty)} ${esc(x.unit)} ${esc(x.obs)}</span></span><select data-c="shst" data-id="${x.id}" style="max-width:170px">${Object.entries(ST).map(([k,v])=>`<option value="${k}" ${k==x.st?'selected':''}>${v}</option>`).join('')}</select><span style="flex:0"><button class="mini" data-a="sedit" data-id="${x.id}">✏️</button><button class="mini" data-a="sdel" data-id="${x.id}">🗑️</button></span></div>`).join(''):''}).join('')||'<p class="sm">Sua lista está vazia. Adicione o primeiro item acima.</p>'}</div>
+<div class="card" style="background:var(--m)"><h2>O que já tenho em casa</h2><p class="sm">Veja aqui antes de planejar as refeições para aproveitar o que existe e reduzir desperdícios.</p>${home.map(x=>`<span class="mini" style="display:inline-block;margin:3px;background:#fff">${esc(x.name)} ${esc(x.qty)} ${esc(x.unit)} <button class="mini" data-a="sdel" data-id="${x.id}">✕</button></span>`).join('')||'<p class="sm">Nada marcado como “já tenho”.</p>'}</div>`};
+V.habits=()=>{const days=[...Array(7)].map((_,i)=>addD(monday(hd),i)),h=ed.habit;
+const wkp=[...Array(8)].map((_,i)=>{const m=addD(monday(today()),(i-7)*7);const ds=[...Array(7)].map((_,j)=>addD(m,j));return{l:fmt(m).slice(0,5),v:ds.reduce((s,d)=>s+pct(d),0)/7,c:i==7?'#ff8a73':'#2f8f6b'}});
+return `<h1>Rastreador de hábitos</h1><div class="note">Estes hábitos são possibilidades, não obrigações. Marque o que fez sentido hoje — sem cobrança.</div>
+<div class="card"><label>Dia</label><input type="date" data-s="hd" value="${hd}"><h3 style="margin-top:14px">${fmt(hd)} — ${Math.round(pct(hd))}%</h3>${prog(pct(hd))}
+${S.habits.map(x=>`<label style="font-weight:400;display:flex;gap:10px;align-items:center;background:var(--b);border-radius:14px;padding:8px 12px"><input type="checkbox" style="width:22px;height:22px" data-c="htg" data-id="${x.id}" ${(L(hd).h||[]).includes(x.id)?'checked':''}> <span style="flex:1">${esc(x.t)}</span><button type="button" class="mini" data-a="hedit" data-id="${x.id}">✏️</button><button type="button" class="mini" data-a="hdel" data-id="${x.id}">🗑️</button></label>`).join('')}
+<form data-f="habit" class="row" style="margin-top:12px"><input name="t" required placeholder="Criar hábito personalizado" value="${h?esc(h.t):''}"><button class="p" style="flex:0">${h?'Salvar':'Adicionar'}</button></form></div>
+<div class="card" style="overflow-x:auto"><h3>Semana</h3><table><tr><th></th>${days.map(d=>`<th>${parse(d).toLocaleDateString('pt-BR',{weekday:'short'}).slice(0,3)}</th>`).join('')}</tr>
+${S.habits.map(x=>`<tr><td>${esc(x.t)}</td>${days.map(d=>{const on=(S.log[d]?.h||[]).includes(x.id);return `<td><button class="hc ${on?'on':''}" data-a="hcell" data-id="${x.id}" data-d="${d}">${on?'✓':''}</button></td>`}).join('')}</tr>`).join('')}
+<tr><td><b>% do dia</b></td>${days.map(d=>`<td>${Math.round(pct(d))}%</td>`).join('')}</tr></table></div>
+<div class="card"><h3>Evolução semanal (média de hábitos registrados)</h3>${bars(wkp,100)}</div>`};
+V.diary=()=>{const l=S.log[dd]||{d:{}},d=l.d||{},F=[['dia','Como foi o dia'],['sent','Como me senti'],['fac','O que facilitou minha rotina'],['dif','O que dificultou minha rotina'],['amanha','O que gostaria de fazer diferente amanhã'],['conq','Uma pequena conquista do dia']];
+const past=Object.keys(S.log).filter(k=>S.log[k].mood!=null||Object.values(S.log[k].d||{}).some(x=>x)).sort().reverse();
+return `<h1>Como estou me sentindo?</h1><div class="card"><label>Data</label><input type="date" data-s="dd" value="${dd}"><div class="moods" style="margin:12px 0">${MOODS.map((m,i)=>`<button class="${l.mood===i?'on':''}" title="${m[1]}" data-a="mood" data-i="${i}">${m[0]}</button>`).join('')}</div><p class="sm">${l.mood!=null?MOODS[l.mood][1]:'Escolha o que mais combina com hoje.'}</p>
+<form data-f="diary">${F.map(f=>`<label>${f[1]}</label><textarea name="${f[0]}">${esc(d[f[0]])}</textarea>`).join('')}<br><button class="p">Salvar registro</button></form><p class="sm">Este diário é só para você se conhecer melhor; ele não faz diagnósticos.</p></div>
+<div class="card"><h3>Registros anteriores</h3>${past.map(k=>`<div class="ml"><b>${MOODS[S.log[k].mood]?.[0]||''} ${fmt(k)}</b> <span class="sm">${esc((S.log[k].d||{}).conq||(S.log[k].d||{}).dia||'')}</span> <button class="mini" data-a="dedit" data-d="${k}">✏️</button><button class="mini" data-a="ddel" data-d="${k}">🗑️</button></div>`).join('')||'<p class="sm">Cada registro ajuda você a entender sua rotina.</p>'}</div>`};
+V.rev=()=>{const R=S.rev[rv]||(S.rev[rv]={}),n=dayN(),T={30:'Meu começo',60:'Meu desenvolvimento',90:'Minha evolução'}[rv];
+let sum='';
+if(rv==30){const s=stat(1,30);sum=`<p>Dias com registro: <b>${s.reg}</b> de 30 · média de hábitos: <b>${s.avg}%</b></p>`}
+if(rv==60){const a=stat(1,30),b=stat(31,60);sum=`<p class="sm">Comparação descritiva dos seus registros.</p>`+bars([{l:'Dias 1–30 (dias)',v:a.reg},{l:'Dias 31–60 (dias)',v:b.reg},{l:'1–30 (% hábitos)',v:a.avg,c:'#ff8a73'},{l:'31–60 (% hábitos)',v:b.avg,c:'#ff8a73'}],100)}
+if(rv==90){const a=stat(1,30),b=stat(61,90),conq=Object.keys(S.log).sort().map(k=>(S.log[k].d||{}).conq&&fmt(k)+': '+S.log[k].d.conq).filter(Boolean);
+sum=`<p>Início: <b>${fmt(S.start)}</b> · Conclusão: <b>${fmt(addD(S.start,89))}</b></p><p>Dias com registro: <b>${stat(1,90).reg}</b> de 90</p><p class="sm">Início (dias 1–30) e momento atual (dias 61–90), segundo seus registros:</p>`+bars([{l:'Início: dias',v:a.reg},{l:'Atual: dias',v:b.reg},{l:'Início: % hábitos',v:a.avg,c:'#ff8a73'},{l:'Atual: % hábitos',v:b.avg,c:'#ff8a73'}],100)+`<h3>Conquistas que você anotou</h3>${conq.map(x=>`<div class="ml">${esc(x)}</div>`).join('')||'<p class="sm">Nenhuma ainda.</p>'}<div class="quote">Você chegou ao fim de um ciclo, mas não ao fim do seu cuidado. Leve com você os hábitos que fizeram sentido, adapte o que precisar e continue construindo uma rotina possível.</div><button class="p np" data-a="newcycle">Começar um novo ciclo de 90 dias</button>`}
+return `<h1>Revisões</h1><div class="tabs np">${[30,60,90].map(x=>`<button class="${x==rv?'p':'s'}" data-a="rvtab" data-n="${x}">Dia ${x}</button>`).join('')}</div><div class="card"><h2>Revisão de ${rv} dias — ${T}</h2>${sum}<hr>${RQ[rv].map((q,i)=>`<label>${q}</label><textarea data-r="${rv}" data-k="q${i}">${esc(R['q'+i])}</textarea>`).join('')}<p class="sm">As respostas são salvas automaticamente ao sair do campo.</p></div>`};
+V.ex=()=>{const e=ed.ex||{},hist=[...S.exams].sort((a,b)=>a.date.localeCompare(b.date)),pts=hist.filter(x=>x.name==exSel&&!isNaN(parseFloat(String(x.val).replace(',','.')))).map(x=>({l:fmt(x.date).slice(0,5)+'/'+x.date.slice(2,4),y:parseFloat(String(x.val).replace(',','.'))})),
+cm=ed.cmp||[hist[0]?.id,hist[hist.length-1]?.id],A=hist.find(x=>x.id==cm[0]),B=hist.find(x=>x.id==cm[1]);
+const co=hist.map(x=>`<option value="${x.id}">${esc(x.name)} — ${fmt(x.date)}</option>`).join('');
+return `<h1>Minha evolução nos exames</h1><div class="note warn">Este espaço serve para organizar e comparar seus próprios resultados. A interpretação dos exames deve ser realizada por um profissional de saúde, considerando seu histórico e suas necessidades.</div>
+<div class="card np"><form data-f="exam"><div class="row"><div><label>Data do exame</label><input type="date" name="date" required value="${e.date||today()}"></div><div><label>Exame</label><select name="name">${opt(EXN,e.name)}</select></div></div>
+<div class="row"><div><label>Resultado (ou descrição do laudo)</label><input name="val" required value="${esc(e.val)}"></div><div><label>Unidade</label><input name="unit" placeholder="mg/dL" value="${esc(e.unit)}"></div></div>
+<div class="row"><div><label>Intervalo de referência do laboratório (opcional)</label><input name="ref" value="${esc(e.ref)}"></div><div><label>Laboratório (opcional)</label><input name="lab" value="${esc(e.lab)}"></div></div>
+<label>Observações</label><textarea name="obs">${esc(e.obs)}</textarea><div class="row" style="margin-top:12px"><button class="p">${e.id?'Salvar alteração':'Adicionar exame'}</button>${e.id?'<button type="button" class="s" data-a="cancel">Cancelar</button>':''}</div></form></div>
+<div class="card"><h3>Gráfico de evolução</h3><select data-s="exSel">${opt(EXN,exSel)}</select>${line(pts)}<p class="sm">Apenas registros e datas; a comparação é descritiva e não indica causa ou resultado.</p></div>
+<div class="card"><h3>Comparar dois resultados</h3>${hist.length<2?'<p class="sm">Adicione ao menos dois registros.</p>':`<div class="row np"><select data-c="cmpA">${co.replace(`value="${A?.id}"`,`value="${A?.id}" selected`)}</select><select data-c="cmpB">${co.replace(`value="${B?.id}"`,`value="${B?.id}" selected`)}</select></div>${A&&B?`<table><tr><th></th><th>${fmt(A.date)}</th><th>${fmt(B.date)}</th></tr><tr><td>${esc(A.name)}</td><td>${esc(A.val)} ${esc(A.unit)}</td><td>${esc(B.name)}: ${esc(B.val)} ${esc(B.unit)}</td></tr></table>`:''}`}</div>
+<div class="card" style="overflow-x:auto"><h3>Histórico</h3><table><tr><th>Data</th><th>Exame</th><th>Resultado</th><th>Referência</th><th>Lab</th><th>Obs.</th><th class="np"></th></tr>${[...hist].reverse().map(x=>`<tr><td>${fmt(x.date)}</td><td>${esc(x.name)}</td><td>${esc(x.val)} ${esc(x.unit)}</td><td>${esc(x.ref)}</td><td>${esc(x.lab)}</td><td>${esc(x.obs)}</td><td class="np"><button class="mini" data-a="eedit" data-id="${x.id}">✏️</button><button class="mini" data-a="edel" data-id="${x.id}">🗑️</button></td></tr>`).join('')}</table><br><button class="s np" data-a="print">🖨️ Imprimir ou salvar histórico</button></div>`};
+V.rep=()=>{const n=Math.max(0,Math.min(dayN(),90)),cnt=S.habits.map(h=>({l:h.t.slice(0,8)+'…',v:Object.values(S.log).filter(x=>(x.h||[]).includes(h.id)).length})),mx=Math.max(1,...cnt.map(x=>x.v)),
+wk=[...Array(8)].map((_,i)=>{const m=addD(monday(today()),(i-7)*7);return{l:fmt(m).slice(0,5),v:S.meals.filter(x=>x.date>=m&&x.date<=addD(m,6)).length}}),
+ev=[...Array(8)].map((_,i)=>{const m=addD(monday(today()),(i-7)*7);return{l:fmt(m).slice(0,5),v:[...Array(7)].filter((_,j)=>isReg(addD(m,j))).length,c:'#ff8a73'}}),
+rd=[30,60,90].filter(x=>Object.values(S.rev[x]||{}).some(v=>v));
+return `<h1>Relatórios e evolução</h1><div class="grid"><div class="card"><h3>Progresso do protocolo</h3>${prog(Math.round(n/90*100))}<p>Dia ${n} de 90</p></div><div class="card"><h3>Revisões concluídas</h3><p style="font-size:22px">${rd.length} de 3</p><p class="sm">${rd.length?'Dia '+rd.join(', '):'Nenhuma ainda.'}</p></div>
+<div class="card"><h3>Hábitos mais registrados (nº de dias)</h3>${bars(cnt,mx)}</div><div class="card"><h3>Refeições planejadas por semana</h3>${bars(wk,Math.max(1,...wk.map(x=>x.v)))}</div>
+<div class="card"><h3>Dias com registro por semana</h3>${bars(ev,7)}</div><div class="card"><h3>Histórico de exames</h3><p>${S.exams.length} registro(s) em ${new Set(S.exams.map(x=>x.date)).size} data(s).</p><p class="sm">Veja detalhes e gráficos na aba Exames.</p></div></div>
+<div class="note">Os gráficos mostram apenas seus registros e datas. A comparação é descritiva e não indica que algum hábito causou mudanças nos exames.</div><button class="p np" data-a="print">🖨️ Imprimir meu relatório</button>`};
+V.set=()=>`<h1>Configurações</h1><div class="card"><h3>Personalização</h3><label>Nome</label><input data-s="name" value="${esc(S.name)}"><label>Data de início</label><input type="date" data-s="start" value="${S.start}">
+<label>Frase favorita</label><select data-s="quote">${QUOTES.map((q,i)=>`<option value="${i}" ${i==S.quote?'selected':''}>${esc(q)}</option>`).join('')}</select>
+<label>Horários das refeições</label><div class="row">${MT.map(m=>`<div><span class="sm">${m}</span><input type="time" data-t="${m}" value="${S.times[m]}"></div>`).join('')}</div>
+<label>Minhas metas (organização e hábitos)</label>${S.goals.map((g,i)=>`<div class="ml">${esc(g)} <button class="mini" data-a="gdel" data-i="${i}">🗑️</button></div>`).join('')}<form data-f="goal" class="row"><input name="g" required placeholder="Ex.: deixar o lanche da semana organizado"><button class="p" style="flex:0">Adicionar</button></form></div>
+<div class="card"><h3>Backup e dados</h3><div class="note warn">Seus dados ficam armazenados somente neste navegador e nada é enviado a servidores. Limpar os dados do navegador pode removê-los — exporte backups com frequência.</div><div class="row"><button class="p" data-a="exp">⬇️ Exportar backup (JSON)</button><button class="s" data-a="imp">⬆️ Importar backup</button><button class="d" data-a="wipe">Apagar todos os dados</button></div><input type="file" id="fi" accept=".json" hidden></div>`;
+const A={
+go(el){cur=el.dataset.v;render()},rvgo(el){rv=+el.dataset.n;cur='rev';render()},rvtab(el){rv=+el.dataset.n;render()},print(){window.print()},cancel(){ed={};render()},
+wk(el){ws=addD(ws,+el.dataset.n);render()},
+mdone(el){const m=S.meals.find(x=>x.id==el.dataset.id);m.done=!m.done;save();render()},medit(el){ed={meal:S.meals.find(x=>x.id==el.dataset.id)};render()},
+mdel(el){if(confirm('Apagar esta refeição?')){S.meals=S.meals.filter(x=>x.id!=el.dataset.id);save();render();toast('Refeição apagada')}},
+sedit(el){ed={shop:S.shop.find(x=>x.id==el.dataset.id)};render()},sdel(el){if(confirm('Apagar este item?')){S.shop=S.shop.filter(x=>x.id!=el.dataset.id);save();render()}},
+hcell(el){tg(el.dataset.d,el.dataset.id);render()},hedit(el){ed={habit:S.habits.find(x=>x.id==el.dataset.id)};render()},
+hdel(el){if(confirm('Apagar este hábito? Os registros dele deixam de aparecer.')){S.habits=S.habits.filter(x=>x.id!=el.dataset.id);save();render()}},
+mood(el){const l=L(dd);l.mood=l.mood===+el.dataset.i?null:+el.dataset.i;save();render()},
+dedit(el){dd=el.dataset.d;window.scrollTo(0,0);render()},ddel(el){if(confirm('Apagar o registro deste dia?')){delete S.log[el.dataset.d];save();render()}},
+eedit(el){ed={ex:S.exams.find(x=>x.id==el.dataset.id)};render();window.scrollTo(0,0)},edel(el){if(confirm('Excluir este exame do histórico?')){S.exams=S.exams.filter(x=>x.id!=el.dataset.id);save();render();toast('Exame excluído')}},
+gdel(el){S.goals.splice(+el.dataset.i,1);save();render()},
+newcycle(){if(confirm('Começar um novo ciclo? Seus registros atuais serão guardados em um arquivo do ciclo anterior (visível no backup), e o novo ciclo começa hoje. Seus exames, compras e hábitos permanecem.')){S.cycles.push({start:S.start,end:today(),log:S.log,meals:S.meals,rev:S.rev});S.log={};S.meals=[];S.rev={30:{},60:{},90:{}};S.start=today();save();cur='home';render();toast('Novo ciclo iniciado. Bom recomeço!')}},
+exp(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,1)],{type:'application/json'}));a.download='nova-saude-90-backup-'+today()+'.json';a.click();toast('Backup exportado')},
+imp(){document.getElementById('fi').click()},
+wipe(){if(confirm('Apagar TODOS os dados deste navegador? Exporte um backup antes.')&&confirm('Tem certeza? Esta ação não pode ser desfeita.')){S=def();save();render();toast('Dados apagados')}}};
+function tg(d,id){const l=L(d);l.h=l.h||[];const i=l.h.indexOf(id);i<0?l.h.push(id):l.h.splice(i,1);save()}
+const F={
+meal(f){const o={id:ed.meal?.id||uid(),done:ed.meal?.done||false,date:f.get('date'),type:f.get('type'),time:f.get('time'),text:f.get('text').trim(),alt:f.get('alt').trim()};if(!o.text)return toast('Escreva o que pretende comer.');
+if(ed.meal)S.meals=S.meals.map(x=>x.id==o.id?o:x);else S.meals.push(o);ws=monday(o.date);ed={};save();render();toast('Refeição salva ✔')},
+shop(f){const o={id:ed.shop?.id||uid(),name:f.get('name').trim(),cat:f.get('cat'),qty:f.get('qty'),unit:f.get('unit'),obs:f.get('obs'),st:f.get('st')};if(!o.name)return toast('Informe o alimento.');
+if(ed.shop)S.shop=S.shop.map(x=>x.id==o.id?o:x);else S.shop.push(o);ed={};save();render();toast('Item salvo ✔')},
+habit(f){const t=f.get('t').trim();if(!t)return;if(ed.habit)ed.habit.t=t;else S.habits.push({id:uid(),t});ed={};save();render();toast('Hábito salvo ✔')},
+diary(f){const l=L(dd);l.d={};['dia','sent','fac','dif','amanha','conq'].forEach(k=>l.d[k]=f.get(k).trim());save();render();toast('Registro salvo. Cada registro ajuda você a entender sua rotina.')},
+exam(f){const o={id:ed.ex?.id||uid(),date:f.get('date'),name:f.get('name'),val:f.get('val').trim(),unit:f.get('unit').trim(),ref:f.get('ref').trim(),lab:f.get('lab').trim(),obs:f.get('obs').trim()};if(!o.val||!o.date)return toast('Informe data e resultado.');
+if(ed.ex)S.exams=S.exams.map(x=>x.id==o.id?o:x);else S.exams.push(o);exSel=o.name;ed={};save();render();toast('Exame salvo ✔')},
+goal(f){S.goals.push(f.get('g').trim());save();render();toast('Meta adicionada ✔')}};
+document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(el&&A[el.dataset.a])A[el.dataset.a](el)});
+document.addEventListener('submit',e=>{const f=e.target.dataset.f;if(f&&F[f]){e.preventDefault();F[f](new FormData(e.target))}});
+document.addEventListener('change',e=>{const t=e.target,d=t.dataset;
+if(d.s){const k=d.s,v=t.value;if(k=='hd'){hd=v||today()}else if(k=='dd'){dd=v||today()}else if(k=='exSel'){exSel=v}else if(k=='quote'){S.quote=+v;save()}else if(k=='start'&&!v){return}else{S[k]=v;save();toast('Salvo ✔')}render()}
+else if(d.t){S.times[d.t]=t.value;save();toast('Horário salvo ✔')}
+else if(d.r){(S.rev[d.r]=S.rev[d.r]||{})[d.k]=t.value;save();toast('Resposta salva ✔')}
+else if(d.c=='htg'){tg(hd,d.id);render()}
+else if(d.c=='shst'){S.shop.find(x=>x.id==d.id).st=t.value;save();render()}
+else if(d.c=='cmpA'||d.c=='cmpB'){const c=ed.cmp||[],i=d.c=='cmpA'?0:1;const h=[...S.exams].sort((a,b)=>a.date.localeCompare(b.date));c[0]=c[0]||h[0].id;c[1]=c[1]||h[h.length-1].id;c[i]=t.value;ed.cmp=c;render()}
+else if(t.id=='fi'){const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result);if(!j.habits||!j.log)throw 0;if(confirm('Importar este backup? Os dados atuais serão substituídos.')){S=Object.assign(def(),j);save();render();toast('Backup importado ✔')}}catch(x){toast('Arquivo de backup inválido.')}};if(t.files[0])r.readAsText(t.files[0])}
+if(t.name=='type'&&t.form&&t.form.dataset.f=='meal')t.form.time.value=S.times[t.value]||''});
+function render(){document.getElementById('nav').innerHTML='<b>🌿 Nova Saúde 90</b>'+NAV.map(n=>`<button class="${n[0]==cur?'on':''}" data-a="go" data-v="${n[0]}"><span>${n[2]}</span>${n[1]}</button>`).join('');
+document.getElementById('main').innerHTML=V[cur]();}
+render();
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+</script></body></html>
